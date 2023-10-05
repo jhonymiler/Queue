@@ -1,0 +1,21 @@
+{
+    "name": "jhonymiler/queue-standalone",
+    "description": "Queue illuminate running in standalone",
+    "autoload": {
+        "psr-4": {
+            "Queue\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jhony Miler",
+            "email": "jonatas.oliveira@grancursosonline.com.br"
+        }
+    ],
+    "require": {
+        "predis/predis": "^2.2"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.34"
+    }
+}
