@@ -13,7 +13,7 @@ class Cachorro
     public function latir()
     {
         //echo "{$this->frase}! \n";
-        sleep(0.5);
+        sleep(1);
 
         return true;
     }
