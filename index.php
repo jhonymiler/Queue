@@ -16,7 +16,7 @@ for ($i = 0; $i < 1000; $i++) {
     Queue::dispatch(new ExampleJob(new Cachorro(), "{$argv[1]} - {$i}"));
 }
 // mata todos processos
-// pkill -f 'php worker.php' && rm output.log
+// pkill -f 'php worker.php' && pkill -f 'php run.php' && rm output.log
 
 // conta quantos processos estão rodando
 // pgrep -c -f 'php worker.php'

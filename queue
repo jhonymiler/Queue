@@ -1,0 +1,90 @@
+<?php
+
+// Função para adicionar cor amarela ao texto
+function amarelo($texto)
+{
+    return "\e[33m".$texto."\e[0m";
+}
+
+// Função para adicionar cor verde ao texto
+function verde($texto)
+{
+    return "\e[32m".$texto."\e[0m";
+}
+
+// Verifica os argumentos passados na linha de comando
+if ($argc < 2) {
+    echo amarelo("Uso: php queue <comando>:<subcomando>\n\n\n");
+
+    echo amarelo("Comandos: \n");
+    echo verde("  work:start    - Inicia o trabalho\n");
+    echo verde("  work:stop     - Para o trabalho\n");
+    echo verde("  work:list     - Lista os workers ativos\n");
+    echo verde("  logs          - Acompanha o log em tempo real\n");
+
+    exit(1);
+}
+
+if ($argc < 3) {
+    // Obtém o comando passado como argumento
+    $comando = $argv[1];
+    // Executa os comandos correspondentes
+    switch ($comando) {
+        case 'work':
+            // Executa o comando para iniciar o trabalho
+            shell_exec('php run.php > /dev/null 2>&1 &');
+            echo verde("Trabalho iniciado.\n");
+
+            break;
+        case 'work:start':
+            // Executa o comando para iniciar o trabalho
+            shell_exec('php worker.php >> output.log 2>&1 &');
+            echo verde("Trabalho iniciado.\n");
+
+            break;
+        case 'work:stop':
+            // Mata todos os processos relacionados ao worker.php
+            shell_exec("pkill -f 'php run.php'");
+            shell_exec("pkill -f 'php worker.php'");
+            shell_exec('rm output.log');
+            echo verde("Trabalho parado e logs removidos.\n");
+
+            break;
+        case 'work:list':
+            // Abre um processo para contar quantos processos estão rodando
+
+            while (true) {
+                // Limpa a tela e move o cursor para o início
+
+                // Obtém informações sobre os processos desejados
+                $processos = shell_exec("ps aux | grep 'php worker.php' | grep -v grep");
+
+                // Exibe os processos no terminal
+                echo amarelo("Número de processos rodando\n");
+                echo verde("-------------------------\n");
+                echo verde($processos);
+
+                // Aguarda 1 segundo antes de atualizar novamente
+                sleep(1);
+                echo "\033c";
+            }
+
+            // no break
+        case 'logs':
+            // Acompanha o log em tempo real
+            $logs = popen('tail -f output.log', 'r');
+
+            while ($line = fgets($logs)) {
+                echo verde($line);
+                flush();
+            }
+
+            pclose($logs);
+
+            break;
+        default:
+            echo amarelo("Comando não reconhecido.\n");
+
+            break;
+    }
+}
