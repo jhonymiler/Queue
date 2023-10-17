@@ -5,11 +5,11 @@ namespace Queue;
 class WorkerManager
 {
     protected $queue;
-    protected $maxWorkers = 30; // Número máximo de workers permitidos
-    protected $jobsPerWorker = 100; // Número de trabalhos por worker
+    protected $maxWorkers = 100; // Número máximo de workers permitidos
+    protected $jobsPerWorker = 30; // Número de trabalhos por worker
     protected $totalJobs = 0; // Inicialize a propriedade totalJobs
 
-    protected $minWorkers = 3; // Número mínimo de workers permitidos
+    protected $minWorkers = 1; // Número mínimo de workers permitidos
 
     public function __construct()
     {

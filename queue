@@ -30,15 +30,9 @@ if ($argc < 3) {
     $comando = $argv[1];
     // Executa os comandos correspondentes
     switch ($comando) {
-        case 'work':
-            // Executa o comando para iniciar o trabalho
-            shell_exec('php run.php > /dev/null 2>&1 &');
-            echo verde("Trabalho iniciado.\n");
-
-            break;
         case 'work:start':
             // Executa o comando para iniciar o trabalho
-            shell_exec('php worker.php >> output.log 2>&1 &');
+            shell_exec('php run.php > /dev/null 2>&1 &');
             echo verde("Trabalho iniciado.\n");
 
             break;
@@ -55,12 +49,12 @@ if ($argc < 3) {
 
             while (true) {
                 // Limpa a tela e move o cursor para o início
+                $qtdProcessos = shell_exec("ps aux | grep -E 'php worker.php$' | grep -v grep | wc -l");
 
                 // Obtém informações sobre os processos desejados
                 $processos = shell_exec("ps aux | grep 'php worker.php' | grep -v grep");
-
                 // Exibe os processos no terminal
-                echo amarelo("Número de processos rodando\n");
+                echo amarelo("Número de processos rodando: {$qtdProcessos}\n");
                 echo verde("-------------------------\n");
                 echo verde($processos);
 

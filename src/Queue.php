@@ -9,6 +9,8 @@ class Queue
     private static $instance;
     protected $redis;
 
+    private $queueName = 'queue';
+
     public function __construct()
     {
         $this->redis = new Client([
@@ -38,18 +40,18 @@ class Queue
             'data'  => serialize($job),
             'tries' => 0,
         ];
-        $this->redis->rpush('queue', json_encode($jobData));
+        $this->redis->rpush($this->queueName, json_encode($jobData));
     }
 
     public function pop(): ?array
     {
-        $jobData = $this->redis->lpop('queue');
+        $jobData = $this->redis->lpop($this->queueName);
         if ($jobData) {
             $jobData = json_decode($jobData, true);
             $jobInstance = unserialize($jobData['data']);
 
             // Obtém a chave do registro no Redis
-            $redisIndex = $this->redis->llen('queue') - 1;
+            $redisIndex = $this->redis->llen($this->queueName) - 1;
 
             return ['index' => $redisIndex, 'class' => $jobData['class'], 'instance' => $jobInstance];
         }
@@ -59,14 +61,14 @@ class Queue
 
     public function count(): int
     {
-        return $this->redis->llen('queue');
+        return $this->redis->llen($this->queueName);
     }
 
     public function releaseFailedJob(array $jobData): void
     {
         $jobData['tries']++;
         if ($jobData['tries'] < 3) {
-            $this->redis->rpush('queue', json_encode($jobData));
+            $this->redis->rpush($this->queueName, json_encode($jobData));
         } else {
             $this->redis->rpush('failed_queue', json_encode($jobData));
         }
