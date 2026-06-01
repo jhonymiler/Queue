@@ -12,14 +12,7 @@
     "preToolUse": [
       {
         "command": ".cursor/hooks/validate-pr-tooluse.sh",
-        "matcher": "Shell",
-        "timeout": 10
-      }
-    ],
-    "beforeSubmitPrompt": [
-      {
-        "type": "prompt",
-        "prompt": "Analise o prompt do usuario. Se ele menciona criar PR, abrir PR, pull request, merge request, ou pedir review de codigo para merge, injete o seguinte contexto: LEMBRETE: Este projeto exige que todo PR siga o template obrigatorio com 5 secoes: Contexto, Objetivo, Criterios de Aceite, Como Testar Manualmente e Cenarios de Teste. Leia a skill pr-reviewer antes de prosseguir. Se o prompt NAO e sobre criacao de PR, ignore.",
+        "matcher": "gh\\s+pr\\s+create",
         "timeout": 10
       }
     ]
