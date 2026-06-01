@@ -1,2 +1,5 @@
 vendor
 .vscode
+.env
+output.log
+.phpunit.cache

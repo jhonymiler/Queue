@@ -4,17 +4,30 @@ namespace Queue\Services;
 
 class Cachorro
 {
-    protected $frase;
+    protected string $frase = '';
+    protected int $sleepSeconds;
 
-    public function setFrase($frase)
+    public function __construct(int $sleepSeconds = 1)
+    {
+        $this->sleepSeconds = $sleepSeconds;
+    }
+
+    public function setFrase(string $frase): self
     {
         $this->frase = $frase;
+
+        return $this;
     }
-    public function latir()
+
+    public function latir(): bool
     {
-        //echo "{$this->frase}! \n";
-        sleep(1);
+        sleep($this->sleepSeconds);
 
         return true;
+    }
+
+    public function getFrase(): string
+    {
+        return $this->frase;
     }
 }

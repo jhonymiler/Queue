@@ -6,8 +6,8 @@ use Queue\Queue;
 
 trait Dispatchable
 {
-    public function dispatch()
+    public function dispatch(): string
     {
-        Queue::dispatch($this);
+        return Queue::dispatch($this);
     }
 }

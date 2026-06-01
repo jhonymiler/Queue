@@ -4,67 +4,102 @@ namespace Queue;
 
 class WorkerManager
 {
-    protected $queue;
-    protected $maxWorkers = 100; // Número máximo de workers permitidos
-    protected $jobsPerWorker = 30; // Número de trabalhos por worker
-    protected $totalJobs = 0; // Inicialize a propriedade totalJobs
+    protected Queue $queue;
+    protected int $maxWorkers;
+    protected int $minWorkers;
+    protected int $jobsPerWorker;
+    protected int $sleepMs;
+    protected bool $shouldStop = false;
 
-    protected $minWorkers = 1; // Número mínimo de workers permitidos
-
-    public function __construct()
+    public function __construct(?Queue $queue = null, ?array $config = null)
     {
-        $this->queue = Queue::getInstance();
+        $config = $config ?? require __DIR__ . '/../config.php';
+        $this->queue = $queue ?? Queue::getInstance();
+        $this->maxWorkers = $config['worker']['max_workers'];
+        $this->minWorkers = $config['worker']['min_workers'];
+        $this->jobsPerWorker = $config['worker']['jobs_per_worker'];
+        $this->sleepMs = $config['worker']['sleep_ms'];
+
+        $this->registerSignalHandlers();
     }
 
     public function manageWorkers(): void
     {
-        while (true) {
-            $totalJobs = $this->queue->count(); // Obtém o número total de trabalhos na fila
-            $totalWorkers = max($this->minWorkers, ceil($totalJobs / $this->jobsPerWorker)); // Garante no mínimo 3 workers
+        while (!$this->shouldStop) {
+            $totalJobs = $this->queue->count();
+            $desiredWorkers = $this->calculateDesiredWorkers($totalJobs);
+            $runningWorkers = $this->getRunningWorkers();
+            $currentCount = count($runningWorkers);
 
-            // Cria novos workers se necessário
-            while ($totalWorkers > count($this->getRunningWorkers()) && count($this->getRunningWorkers()) < $this->maxWorkers) {
-                $this->startNewWorker();
+            if ($desiredWorkers > $currentCount && $currentCount < $this->maxWorkers) {
+                $toStart = min($desiredWorkers - $currentCount, $this->maxWorkers - $currentCount);
+                for ($i = 0; $i < $toStart; $i++) {
+                    $this->startNewWorker();
+                }
+            } elseif ($desiredWorkers < $currentCount) {
+                $toStop = $currentCount - $desiredWorkers;
+                $this->stopWorkers($runningWorkers, $toStop);
             }
 
-            // Remove workers extras se necessário
-            while ($totalWorkers < count($this->getRunningWorkers())) {
-                $this->stopWorker();
-            }
-
-            // Dorme por um curto período antes de verificar novamente
-            sleep(0.1);
+            usleep($this->sleepMs * 1000);
         }
     }
 
-    protected function startNewWorker()
+    public function calculateDesiredWorkers(int $totalJobs): int
     {
-        $workerCommand = 'php worker.php >> output.log 2>&1 &';
-        exec($workerCommand); // Inicia um novo worker em background
+        $desired = (int) ceil($totalJobs / $this->jobsPerWorker);
+
+        return max($this->minWorkers, min($desired, $this->maxWorkers));
     }
 
-    protected function stopWorker()
+    public function stop(): void
     {
-        $runningWorkers = $this->getRunningWorkers();
-        if (!empty($runningWorkers)) {
-            $workerToStop = reset($runningWorkers);
-            $stopCommand = 'kill '.$workerToStop['pid'];
-            exec($stopCommand); // Mata o worker especificado
+        $this->shouldStop = true;
+    }
+
+    protected function startNewWorker(): void
+    {
+        $workerScript = __DIR__ . '/../worker.php';
+        $logFile = __DIR__ . '/../output.log';
+        exec("php {$workerScript} >> {$logFile} 2>&1 &");
+    }
+
+    protected function stopWorkers(array $workers, int $count): void
+    {
+        $stopped = 0;
+        foreach ($workers as $worker) {
+            if ($stopped >= $count) {
+                break;
+            }
+            exec("kill -TERM {$worker['pid']}");
+            $stopped++;
         }
     }
 
-    protected function getRunningWorkers()
+    public function getRunningWorkers(): array
     {
         $output = [];
-        exec("ps aux | grep 'php worker.php' | grep -v grep", $output); // Obtém a lista de workers em execução
+        exec("ps aux | grep 'php.*worker.php' | grep -v grep", $output);
         $workers = [];
 
         foreach ($output as $line) {
             $data = preg_split('/\s+/', $line);
-            $pid = $data[1];
-            $workers[] = ['pid' => $pid];
+            if (isset($data[1])) {
+                $workers[] = ['pid' => (int) $data[1]];
+            }
         }
 
         return $workers;
+    }
+
+    protected function registerSignalHandlers(): void
+    {
+        if (!function_exists('pcntl_async_signals')) {
+            return;
+        }
+
+        pcntl_async_signals(true);
+        pcntl_signal(SIGTERM, fn () => $this->stop());
+        pcntl_signal(SIGINT, fn () => $this->stop());
     }
 }
