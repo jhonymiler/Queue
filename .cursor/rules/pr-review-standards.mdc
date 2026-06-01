@@ -1,0 +1,40 @@
+---
+description: Padrões e critérios de qualidade para revisão de Pull Requests.
+alwaysApply: true
+---
+
+# Padrões de Revisão de PR
+
+
+## Checklist de pré-requisitos para abrir um PR
+
+### Código
+- [ ] O código compila/executa sem erros
+- [ ] Não há imports não utilizados ou código morto
+- [ ] Funções e variáveis possuem nomes descritivos
+- [ ] Funções com mais de 30 linhas foram refatoradas
+- [ ] Não há credenciais, tokens ou segredos hardcoded
+
+### Testes
+- [ ] Testes unitários foram adicionados ou atualizados
+- [ ] Testes existentes continuam passando
+- [ ] Edge cases foram considerados
+
+### Documentação
+- [ ] O body do PR segue o template obrigatório (ver rule pr-template)
+- [ ] Mudanças em APIs foram documentadas
+- [ ] Variáveis de ambiente novas foram documentadas
+
+### Escopo
+- [ ] A PR contém apenas mudanças relacionadas ao objetivo descrito
+- [ ] Refatorações não foram misturadas com features
+- [ ] O diff é revisável (menos de 400 linhas alteradas preferencialmente)
+
+## Classificação de risco
+
+| Nível | Critério | Ação |
+|-------|----------|------|
+| Baixo | Mudanças em docs, testes, ou arquivos de config | Review simplificado |
+| Médio | Mudanças em lógica de negócio existente | Review detalhado + testes |
+| Alto | Mudanças em infra, CI/CD, segurança ou banco de dados | Review detalhado + aprovação de tech lead |
+| Crítico | Mudanças em produção direta ou migrations destrutivas | Review + aprovação de 2 pessoas |

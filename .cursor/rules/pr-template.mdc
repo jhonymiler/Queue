@@ -1,0 +1,56 @@
+---
+description: Template obrigatório para criação de Pull Requests.
+alwaysApply: true
+---
+
+# Template de Pull Request
+
+
+Ao criar um Pull Request, SEMPRE utilize o template abaixo. Nenhuma seção pode ser omitida ou deixada vazia.
+
+## Template obrigatório
+
+```markdown
+## Contexto
+<!-- Descreva o cenário atual, o problema ou a necessidade que motivou esta mudança.
+     Inclua links para issues, tickets ou documentos relevantes. -->
+
+## Objetivo
+<!-- Explique de forma clara e objetiva o que esta PR faz.
+     Qual é a mudança principal e por que ela é necessária? -->
+
+## Critérios de Aceite
+- [ ] Critério 1
+- [ ] Critério 2
+<!-- Liste todos os critérios que devem ser satisfeitos para considerar esta PR completa.
+     Cada critério deve ser verificável e objetivo. -->
+
+## Como Testar Manualmente
+1. Passo 1
+2. Passo 2
+<!-- Descreva o passo a passo para validar a mudança manualmente.
+     Inclua pré-requisitos, dados de teste necessários e resultados esperados. -->
+
+## Cenários de Teste
+| Cenário | Entrada | Resultado Esperado |
+|---------|---------|-------------------|
+| Caso feliz | ... | ... |
+| Caso de erro | ... | ... |
+<!-- Liste os cenários de teste relevantes em formato de tabela.
+     Inclua casos positivos, negativos e edge cases. -->
+```
+
+## Regras de validação
+
+1. Todas as 5 seções são **obrigatórias**: Contexto, Objetivo, Critérios de Aceite, Como Testar Manualmente, Cenários de Teste
+2. Nenhuma seção pode conter apenas o placeholder/comentário HTML — deve ter conteúdo real
+3. Critérios de Aceite devem ter pelo menos 2 itens com checkboxes
+4. Como Testar Manualmente deve ter pelo menos 2 passos numerados
+5. Cenários de Teste devem ter pelo menos 2 cenários na tabela
+
+## Comportamento do agente
+
+- Antes de criar um PR, verifique se o body atende a TODAS as regras acima
+- Se alguma seção estiver faltando ou incompleta, NÃO crie o PR — peça ao usuário para completar
+- Ao ser solicitado para criar um PR, preencha o template com base nas mudanças realizadas
+- Sempre pergunte ao usuário se deseja revisar o body antes de submeter
